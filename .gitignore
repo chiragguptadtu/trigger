@@ -1,0 +1,22 @@
+# Environment — never commit secrets
+.env
+
+# Go build output
+/trigger
+/server
+*.exe
+*.test
+*.out
+
+# Scratch files
+req.txt
+
+# Test and coverage artifacts
+coverage.html
+coverage.out
+
+# Editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
