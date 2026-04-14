@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	"trigger/internal/store"
+	"github.com/chiragguptadtu/trigger/internal/store"
 )
 
 func (s *Server) handleListImportErrors(w http.ResponseWriter, r *http.Request) {

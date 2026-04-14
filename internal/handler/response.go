@@ -3,7 +3,7 @@ package handler
 import (
 	"encoding/json"
 
-	"trigger/internal/store"
+	"github.com/chiragguptadtu/trigger/internal/store"
 )
 
 const timeFormat = "2006-01-02T15:04:05Z"

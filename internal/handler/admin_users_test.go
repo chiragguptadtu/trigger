@@ -10,7 +10,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"trigger/internal/auth"
+	"github.com/chiragguptadtu/trigger/internal/auth"
 )
 
 func TestListUsers(t *testing.T) {

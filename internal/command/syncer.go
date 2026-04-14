@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
-	"trigger/internal/store"
+	"github.com/chiragguptadtu/trigger/internal/store"
 )
 
 // Sync upserts all scanned commands into the DB and deactivates any active

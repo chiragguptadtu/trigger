@@ -9,8 +9,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"trigger/db"
-	"trigger/internal/store"
+	"github.com/chiragguptadtu/trigger/db"
+	"github.com/chiragguptadtu/trigger/internal/store"
 )
 
 const defaultTestDSN = "postgres://trigger:trigger@localhost:5432/trigger?sslmode=disable"

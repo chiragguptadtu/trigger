@@ -6,8 +6,8 @@ import (
 	"net/http"
 	"time"
 
-	"trigger/internal/auth"
-	"trigger/internal/store"
+	"github.com/chiragguptadtu/trigger/internal/auth"
+	"github.com/chiragguptadtu/trigger/internal/store"
 )
 
 type loginRequest struct {

@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	"trigger/internal/store"
+	"github.com/chiragguptadtu/trigger/internal/store"
 )
 
 // RequireCommandAccess allows the request through if the authenticated user is

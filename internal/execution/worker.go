@@ -10,8 +10,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/riverqueue/river"
-	"trigger/internal/crypto"
-	"trigger/internal/store"
+	"github.com/chiragguptadtu/trigger/internal/crypto"
+	"github.com/chiragguptadtu/trigger/internal/store"
 )
 
 // ExecutionArgs is the River job payload.

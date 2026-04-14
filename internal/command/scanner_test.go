@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"trigger/internal/command"
+	"github.com/chiragguptadtu/trigger/internal/command"
 )
 
 func TestScanDir_FindsPythonCommands(t *testing.T) {

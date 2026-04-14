@@ -12,9 +12,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"trigger/internal/auth"
-	"trigger/internal/handler"
-	"trigger/internal/store"
+	"github.com/chiragguptadtu/trigger/internal/auth"
+	"github.com/chiragguptadtu/trigger/internal/handler"
+	"github.com/chiragguptadtu/trigger/internal/store"
 )
 
 // stubEnqueuer records calls but does nothing — keeps handler tests free of River.
