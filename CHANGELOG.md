@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.0] - 2026-04-14
+
+### Changed
+- Command form redesigned to a Google Sheets-like layout: labels as a fixed header row, inputs as a horizontally scrollable row — handles 15+ inputs cleanly without pushing execution history off screen
+- Run button pinned below the scrollable input row, always visible
+- Large hardcoded pixel values converted to viewport-relative units (`vw`) across all pages: sidebar width, form input width, modals, login card, permission selector, navbar popover
+- Admin page padding centralized into a shared `PAGE_PADDING` constant
+
+### Fixed
+- Multi-select dropdowns in command forms no longer flip upward when many options are selected
+
 ## [0.1.0] - 2026-04-14
 
 ### Added
