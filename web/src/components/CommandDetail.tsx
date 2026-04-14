@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { Card, Form, Input, Select, Button, Typography, Table, Tag, Tooltip, Row, Col } from 'antd'
+import { Card, Form, Input, Select, Button, Typography, Table, Tag, Tooltip } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import type { Command } from '../api/commands'
 import type { Execution } from '../api/executions'
@@ -195,16 +195,30 @@ export default function CommandDetail({ command }: Props) {
         <Form
           form={form}
           layout="vertical"
+          size="small"
           onFinish={handleSubmit}
           requiredMark={false}
         >
-          <Row gutter={[16, 0]}>
-            {command.inputs.map((input) => (
-              <Col key={input.name} xs={24} sm={12} md={8}>
+          <div style={styles.formScroll}>
+            {/* Label row — fixed height, acts as column headers */}
+            <div style={styles.formLabelRow}>
+              {command.inputs.map((input) => (
+                <div key={input.name} style={styles.formCell}>
+                  <Text style={styles.formLabel}>
+                    {input.label}
+                    {input.required && <span style={{ color: '#ff4d4f', marginLeft: 2 }}>*</span>}
+                  </Text>
+                </div>
+              ))}
+            </div>
+
+            {/* Input row — can grow downward independently */}
+            <div style={styles.formInputRow}>
+              {command.inputs.map((input) => (
                 <Form.Item
+                  key={input.name}
                   name={input.name}
-                  label={input.label}
-                  style={{ marginBottom: 12 }}
+                  style={styles.formCell}
                   rules={input.required ? [{ required: true, message: `${input.label} is required` }] : []}
                 >
                   {input.type === 'open' ? (
@@ -222,25 +236,20 @@ export default function CommandDetail({ command }: Props) {
                     />
                   )}
                 </Form.Item>
-              </Col>
-            ))}
-          </Row>
-
-          <Form.Item style={{ marginBottom: 0 }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              <Button type="primary" htmlType="submit" loading={running} disabled={running}>
-                {running ? 'Running…' : 'Run'}
-              </Button>
-              {result && (
-                <Text
-                  type={result.type === 'success' ? 'success' : 'danger'}
-                  style={{ fontSize: 13 }}
-                >
-                  {result.message}
-                </Text>
-              )}
+              ))}
             </div>
-          </Form.Item>
+          </div>
+
+          <div style={styles.formActions}>
+            <Button type="primary" htmlType="submit" loading={running} disabled={running}>
+              {running ? 'Running…' : 'Run'}
+            </Button>
+            {result && (
+              <Text type={result.type === 'success' ? 'success' : 'danger'} style={{ fontSize: 13 }}>
+                {result.message}
+              </Text>
+            )}
+          </div>
         </Form>
       </Card>
 
@@ -271,7 +280,7 @@ const styles: Record<string, React.CSSProperties> = {
     flexDirection: 'column',
     gap: 12,
     padding: 16,
-    overflow: 'auto',
+    overflow: 'hidden',
     boxSizing: 'border-box',
   },
   card: {
@@ -290,7 +299,41 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 12,
   },
   formBody: {
-    padding: '16px 16px 12px',
+    padding: '12px 16px',
+  },
+  formScroll: {
+    overflowX: 'auto',
+    paddingBottom: 24,
+  },
+  formLabelRow: {
+    display: 'flex',
+    gap: 12,
+    marginBottom: 4,
+  },
+  formInputRow: {
+    display: 'flex',
+    gap: 12,
+    alignItems: 'flex-start',
+  },
+  formCell: {
+    width: '13vw',
+    flexShrink: 0,
+    marginBottom: 0,
+  },
+  formLabel: {
+    fontSize: 12,
+    color: 'rgba(0,0,0,0.45)',
+    fontWeight: 500,
+    whiteSpace: 'nowrap' as const,
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    display: 'block',
+  },
+  formActions: {
+    display: 'flex',
+    alignItems: 'center',
+    gap: 12,
+    paddingTop: 4,
   },
   historyBody: {
     padding: '0 0',

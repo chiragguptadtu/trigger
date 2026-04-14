@@ -7,6 +7,7 @@ import { fetchUsers, createUser, updateUser, deactivateUser } from '../../api/ad
 import { getApiError } from '../../utils/error'
 import type { User } from '../../api/admin'
 import { colTitle, tableProps } from '../../utils/table'
+import { PAGE_PADDING } from '../../utils/theme'
 
 const { Text } = Typography
 
@@ -186,7 +187,7 @@ export default function AdminUsersPage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  page: { padding: '28px 32px', background: '#fff', flex: 1, overflow: 'auto' },
+  page: { padding: PAGE_PADDING, background: '#fff', flex: 1, overflow: 'auto' },
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 },
   title: { fontSize: 16 },
 }
