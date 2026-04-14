@@ -7,7 +7,7 @@ import type { Execution } from '../api/executions'
 import { triggerExecution, fetchExecution, fetchExecutions } from '../api/executions'
 import { colTitle, tableProps } from '../utils/table'
 
-import { PRIMARY, AVATAR_COLORS } from '../utils/theme'
+import { AVATAR_COLORS } from '../utils/theme'
 import { getApiError } from '../utils/error'
 
 const { Title, Text } = Typography
