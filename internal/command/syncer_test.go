@@ -21,11 +21,13 @@ func TestMain(m *testing.M) {
 	if dsn == "" {
 		dsn = defaultTestDSN
 	}
-	// Non-fatal: parser tests run fine without DB; only syncer tests skip.
-	if pool, err := db.Connect(context.Background(), dsn); err == nil {
-		_ = db.RunMigrations(dsn)
-		testStore = store.New(pool)
-		defer pool.Close()
+	// Migrations first, then connect — same order as handler/execution tests.
+	// Non-fatal: if DB is unavailable, syncer tests skip and parser tests run.
+	if err := db.RunMigrations(dsn); err == nil {
+		if pool, err := db.Connect(context.Background(), dsn); err == nil {
+			testStore = store.New(pool)
+			defer pool.Close()
+		}
 	}
 	os.Exit(m.Run())
 }
