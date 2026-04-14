@@ -4,10 +4,10 @@ import (
 	"context"
 	"testing"
 
-	"trigger/internal/auth"
-	"trigger/internal/handler"
-	"trigger/internal/middleware"
-	"trigger/internal/store"
+	"github.com/chiragguptadtu/trigger/internal/auth"
+	"github.com/chiragguptadtu/trigger/internal/handler"
+	"github.com/chiragguptadtu/trigger/internal/middleware"
+	"github.com/chiragguptadtu/trigger/internal/store"
 )
 
 // testCleanup registers a t.Cleanup that runs the given SQL against testPool.

@@ -11,13 +11,13 @@ import (
 	"time"
 
 	"github.com/joho/godotenv"
-	"trigger/db"
-	"trigger/internal/auth"
-	"trigger/internal/command"
-	"trigger/internal/crypto"
-	"trigger/internal/execution"
-	"trigger/internal/handler"
-	"trigger/internal/store"
+	"github.com/chiragguptadtu/trigger/db"
+	"github.com/chiragguptadtu/trigger/internal/auth"
+	"github.com/chiragguptadtu/trigger/internal/command"
+	"github.com/chiragguptadtu/trigger/internal/crypto"
+	"github.com/chiragguptadtu/trigger/internal/execution"
+	"github.com/chiragguptadtu/trigger/internal/handler"
+	"github.com/chiragguptadtu/trigger/internal/store"
 )
 
 func main() {

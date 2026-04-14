@@ -5,7 +5,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"trigger/internal/crypto"
+	"github.com/chiragguptadtu/trigger/internal/crypto"
 )
 
 func TestEncryptDecrypt_RoundTrip(t *testing.T) {

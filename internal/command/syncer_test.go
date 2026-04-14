@@ -7,9 +7,9 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"trigger/db"
-	"trigger/internal/command"
-	"trigger/internal/store"
+	"github.com/chiragguptadtu/trigger/db"
+	"github.com/chiragguptadtu/trigger/internal/command"
+	"github.com/chiragguptadtu/trigger/internal/store"
 )
 
 const defaultTestDSN = "postgres://trigger:trigger@localhost:5432/trigger?sslmode=disable"

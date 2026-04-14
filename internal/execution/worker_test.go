@@ -13,9 +13,9 @@ import (
 	"github.com/riverqueue/river/riverdriver/riverpgxv5"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"trigger/db"
-	"trigger/internal/execution"
-	"trigger/internal/store"
+	"github.com/chiragguptadtu/trigger/db"
+	"github.com/chiragguptadtu/trigger/internal/execution"
+	"github.com/chiragguptadtu/trigger/internal/store"
 )
 
 const defaultTestDSN = "postgres://trigger:trigger@localhost:5432/trigger?sslmode=disable"

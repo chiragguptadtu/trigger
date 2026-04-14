@@ -1,4 +1,4 @@
-module trigger
+module github.com/chiragguptadtu/trigger
 
 go 1.25.0
 

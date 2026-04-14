@@ -9,8 +9,8 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"trigger/internal/auth"
-	"trigger/internal/store"
+	"github.com/chiragguptadtu/trigger/internal/auth"
+	"github.com/chiragguptadtu/trigger/internal/store"
 )
 
 func TestListCommands_Admin(t *testing.T) {

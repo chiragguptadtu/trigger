@@ -4,8 +4,8 @@ import (
 	"context"
 	"net/http"
 
-	"trigger/internal/middleware"
-	"trigger/internal/store"
+	"github.com/chiragguptadtu/trigger/internal/middleware"
+	"github.com/chiragguptadtu/trigger/internal/store"
 )
 
 // JobEnqueuer abstracts River so handlers can be tested without it.

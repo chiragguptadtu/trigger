@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"trigger/internal/auth"
+	"github.com/chiragguptadtu/trigger/internal/auth"
 )
 
 func writeError(w http.ResponseWriter, status int, msg string) {

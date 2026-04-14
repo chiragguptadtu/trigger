@@ -6,9 +6,9 @@ import (
 	"net/http"
 
 	"github.com/google/uuid"
-	"trigger/internal/crypto"
-	"trigger/internal/middleware"
-	"trigger/internal/store"
+	"github.com/chiragguptadtu/trigger/internal/crypto"
+	"github.com/chiragguptadtu/trigger/internal/middleware"
+	"github.com/chiragguptadtu/trigger/internal/store"
 )
 
 type updateConfigRequest struct {
