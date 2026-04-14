@@ -23,6 +23,7 @@ func TestMain(m *testing.M) {
 	}
 	// Non-fatal: parser tests run fine without DB; only syncer tests skip.
 	if pool, err := db.Connect(context.Background(), dsn); err == nil {
+		_ = db.RunMigrations(dsn)
 		testStore = store.New(pool)
 		defer pool.Close()
 	}
