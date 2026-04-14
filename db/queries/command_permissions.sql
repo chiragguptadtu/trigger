@@ -1,7 +1,6 @@
 -- name: CreateCommandPermission :one
 INSERT INTO command_permissions (command_id, grantee_type, grantee_id)
 VALUES ($1, $2, $3)
-ON CONFLICT DO NOTHING
 RETURNING *;
 
 -- name: DeleteCommandPermission :exec

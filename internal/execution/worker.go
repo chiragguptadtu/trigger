@@ -21,6 +21,12 @@ type ExecutionArgs struct {
 
 func (ExecutionArgs) Kind() string { return "execution" }
 
+const (
+	statusRunning = "running"
+	statusSuccess = "success"
+	statusFailure = "failure"
+)
+
 // Worker processes execution jobs: runs the script and updates the DB record.
 type Worker struct {
 	river.WorkerDefaults[ExecutionArgs]
@@ -51,7 +57,7 @@ func (w *Worker) Work(ctx context.Context, job *river.Job[ExecutionArgs]) error 
 	// Mark as running
 	now := pgtype.Timestamptz{Time: time.Now(), Valid: true}
 	if _, err := w.store.UpdateExecutionStatus(ctx, store.UpdateExecutionStatusParams{
-		ID: execID, Status: "running", StartedAt: now,
+		ID: execID, Status: statusRunning, StartedAt: now,
 	}); err != nil {
 		return fmt.Errorf("update running: %w", err)
 	}
@@ -74,9 +80,9 @@ func (w *Worker) Work(ctx context.Context, job *river.Job[ExecutionArgs]) error 
 	errMsg, runErr := RunScript(ctx, cmd.ScriptPath, inputs, config)
 
 	completedAt := pgtype.Timestamptz{Time: time.Now(), Valid: true}
-	status := "success"
+	status := statusSuccess
 	if runErr != nil || errMsg != "" {
-		status = "failure"
+		status = statusFailure
 		if runErr != nil {
 			errMsg = runErr.Error()
 		}
@@ -124,5 +130,3 @@ func (w *Worker) loadConfig(ctx context.Context) (map[string]string, error) {
 	return result, nil
 }
 
-// Sentinel — keep compiler happy if store.ListConfigEntriesRow doesn't have ValueEncrypted.
-var _ = errors.New

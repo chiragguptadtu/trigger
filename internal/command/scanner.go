@@ -61,9 +61,6 @@ func ScanDir(dir string) (ScanResult, error) {
 		}
 
 		cmd, err := ParseContent(string(content))
-		if errors.Is(err, ErrNoTriggerBlock) {
-			return nil // not a command file — skip silently
-		}
 		if err != nil {
 			result.Errors = append(result.Errors, ScanError{Filename: filename, Err: err})
 			return nil

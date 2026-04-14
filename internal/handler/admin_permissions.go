@@ -82,6 +82,10 @@ func (s *Server) handleGrantPermission(w http.ResponseWriter, r *http.Request) {
 		GranteeID:   granteeID,
 	})
 	if err != nil {
+		if errors.Is(store.Normalize(err), store.ErrConflict) {
+			writeError(w, http.StatusConflict, "permission already granted")
+			return
+		}
 		writeError(w, http.StatusInternalServerError, "internal error")
 		return
 	}

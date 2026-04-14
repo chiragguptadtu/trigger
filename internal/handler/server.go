@@ -39,9 +39,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *Server) routes() {
 	s.mux.HandleFunc("POST /auth/login", s.handleLogin)
 
-	// Executions — require authentication + command-level access check
+	// Commands + Executions — require authentication
 	auth := middleware.Authenticate(s.config.JWTSecret)
 	access := middleware.RequireCommandAccess(s.store)
+	s.mux.HandleFunc("GET /commands", chain(auth, nil, s.handleListCommands))
+	s.mux.HandleFunc("GET /commands/import-errors", chain(auth, nil, s.handleListImportErrors))
+	s.mux.HandleFunc("GET /commands/{slug}", chain(auth, access, s.handleGetCommand))
 	s.mux.HandleFunc("POST /commands/{slug}/executions", chain(auth, access, s.handleTriggerExecution))
 	s.mux.HandleFunc("GET /executions/{id}", chain(auth, nil, s.handleGetExecution))
 	s.mux.HandleFunc("GET /commands/{slug}/executions", chain(auth, access, s.handleListExecutions))

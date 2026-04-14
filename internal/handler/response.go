@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"encoding/json"
+
 	"trigger/internal/store"
 )
 
@@ -63,14 +65,18 @@ func newPermissionResponse(p store.CommandPermission) PermissionResponse {
 
 // ExecutionResponse is the JSON shape returned for an execution.
 // StartedAt and CompletedAt are omitted when not yet set.
+// TriggeredByName/Email and Inputs are populated only in list responses.
 type ExecutionResponse struct {
-	ID           string  `json:"id"`
-	CommandID    string  `json:"command_id"`
-	Status       string  `json:"status"`
-	ErrorMessage string  `json:"error_message"`
-	CreatedAt    string  `json:"created_at"`
-	StartedAt    *string `json:"started_at,omitempty"`
-	CompletedAt  *string `json:"completed_at,omitempty"`
+	ID               string         `json:"id"`
+	CommandID        string         `json:"command_id"`
+	Status           string         `json:"status"`
+	ErrorMessage     string         `json:"error_message"`
+	CreatedAt        string         `json:"created_at"`
+	StartedAt        *string        `json:"started_at,omitempty"`
+	CompletedAt      *string        `json:"completed_at,omitempty"`
+	TriggeredByName  string         `json:"triggered_by_name,omitempty"`
+	TriggeredByEmail string         `json:"triggered_by_email,omitempty"`
+	Inputs           map[string]any `json:"inputs,omitempty"`
 }
 
 func newExecutionResponse(e store.Execution) ExecutionResponse {
@@ -80,6 +86,33 @@ func newExecutionResponse(e store.Execution) ExecutionResponse {
 		Status:       e.Status,
 		ErrorMessage: e.ErrorMessage,
 		CreatedAt:    e.CreatedAt.Time.Format(timeFormat),
+	}
+	if e.StartedAt.Valid {
+		s := e.StartedAt.Time.Format(timeFormat)
+		r.StartedAt = &s
+	}
+	if e.CompletedAt.Valid {
+		s := e.CompletedAt.Time.Format(timeFormat)
+		r.CompletedAt = &s
+	}
+	return r
+}
+
+func newExecutionListResponse(e store.ListExecutionsForCommandRow) ExecutionResponse {
+	r := ExecutionResponse{
+		ID:               e.ID.String(),
+		CommandID:        e.CommandID.String(),
+		Status:           e.Status,
+		ErrorMessage:     e.ErrorMessage,
+		CreatedAt:        e.CreatedAt.Time.Format(timeFormat),
+		TriggeredByName:  e.TriggeredByName,
+		TriggeredByEmail: e.TriggeredByEmail,
+	}
+	if len(e.Inputs) > 0 {
+		var inputs map[string]any
+		if err := json.Unmarshal(e.Inputs, &inputs); err == nil {
+			r.Inputs = inputs
+		}
 	}
 	if e.StartedAt.Valid {
 		s := e.StartedAt.Time.Format(timeFormat)
@@ -110,6 +143,54 @@ func newConfigResponse(c store.ConfigEntry) ConfigResponse {
 		CreatedAt:   c.CreatedAt.Time.Format(timeFormat),
 		UpdatedAt:   c.UpdatedAt.Time.Format(timeFormat),
 	}
+}
+
+// CommandInputResponse is the JSON shape returned for a command input.
+type CommandInputResponse struct {
+	Name     string   `json:"name"`
+	Label    string   `json:"label"`
+	Type     string   `json:"type"`
+	Options  []string `json:"options,omitempty"`
+	Multi    bool     `json:"multi"`
+	Required bool     `json:"required"`
+}
+
+func newCommandInputResponse(i store.CommandInput) CommandInputResponse {
+	var opts []string
+	if len(i.Options) > 0 {
+		_ = json.Unmarshal(i.Options, &opts)
+	}
+	return CommandInputResponse{
+		Name:     i.Name,
+		Label:    i.Label,
+		Type:     i.Type,
+		Options:  opts,
+		Multi:    i.Multi,
+		Required: i.Required,
+	}
+}
+
+// CommandResponse is the JSON shape returned for a command (with inputs).
+type CommandResponse struct {
+	ID          string                 `json:"id"`
+	Slug        string                 `json:"slug"`
+	Name        string                 `json:"name"`
+	Description string                 `json:"description"`
+	Inputs      []CommandInputResponse `json:"inputs"`
+}
+
+func newCommandResponse(c store.Command, inputs []store.CommandInput) CommandResponse {
+	r := CommandResponse{
+		ID:          c.ID.String(),
+		Slug:        c.Slug,
+		Name:        c.Name,
+		Description: c.Description,
+		Inputs:      make([]CommandInputResponse, len(inputs)),
+	}
+	for i, inp := range inputs {
+		r.Inputs[i] = newCommandInputResponse(inp)
+	}
+	return r
 }
 
 // ImportErrorResponse is the JSON shape returned for a command import error.

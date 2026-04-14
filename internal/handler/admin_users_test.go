@@ -93,6 +93,16 @@ func TestDeactivateUser(t *testing.T) {
 	assert.False(t, fetched.IsActive)
 }
 
+func TestDeactivateUser_NotFound(t *testing.T) {
+	fakeID := "00000000-0000-0000-0000-000000000001"
+	req := httptest.NewRequest(http.MethodDelete, "/admin/users/"+fakeID, nil).
+		WithContext(adminCtx(t))
+	req.SetPathValue("id", fakeID)
+	rr := httptest.NewRecorder()
+	newTestServer(testQueries).ServeHTTP(rr, req)
+	assert.Equal(t, http.StatusNotFound, rr.Code)
+}
+
 func TestAdminUsers_OperatorForbidden(t *testing.T) {
 	ctx := context.Background()
 	u, err := testQueries.CreateUser(ctx, createAdminParams())

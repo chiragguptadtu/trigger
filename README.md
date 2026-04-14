@@ -11,7 +11,7 @@ Most teams accumulate scripts — deployment helpers, data fixes, report generat
 ## Features
 
 - **Zero-touch command registration** — drop a script with a YAML comment header into the `commands/` directory; Trigger picks it up automatically within 30 seconds
-- **Two roles** — Operator (run assigned commands, view own history) and Admin (manage everything)
+- **Two roles** — Operator (run assigned commands, view full execution history for those commands) and Admin (manage everything)
 - **Fine-grained access control** — grant access per user or per group; admins always have full access
 - **Async execution** — commands run in the background via a River job queue; poll for results
 - **Encrypted config store** — AES-256-GCM encrypted key-value pairs injected into scripts at runtime
@@ -25,13 +25,14 @@ Most teams accumulate scripts — deployment helpers, data fixes, report generat
 | Backend | Go, `net/http` (stdlib), pgx/v5, sqlc, goose, River |
 | Auth | JWT (golang-jwt), bcrypt (x/crypto) |
 | Database | PostgreSQL |
-| Frontend | React + TypeScript *(in progress)* |
+| Frontend | React + TypeScript, Ant Design, TanStack Query |
 
 ## Getting Started
 
 ### Prerequisites
 
 - Go 1.25+
+- Node.js 20+
 - Docker (for PostgreSQL)
 
 ### 1. Clone and configure
@@ -64,6 +65,16 @@ go run ./cmd/server
 Migrations run automatically on startup. On first run, set `ADMIN_EMAIL` and `ADMIN_PASSWORD` in `.env` to seed an admin account.
 
 The server starts on `http://localhost:8080`.
+
+### 4. Run the frontend
+
+```bash
+cd web
+npm install
+npm run dev
+```
+
+The frontend starts on `http://localhost:5173` and proxies API requests to the Go server.
 
 ## Adding a Command
 

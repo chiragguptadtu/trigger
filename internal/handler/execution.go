@@ -106,12 +106,6 @@ func (s *Server) handleGetExecution(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s *Server) handleListExecutions(w http.ResponseWriter, r *http.Request) {
-	claims, ok := middleware.ClaimsFromContext(r.Context())
-	if !ok {
-		writeError(w, http.StatusUnauthorized, "not authenticated")
-		return
-	}
-
 	slug := r.PathValue("slug")
 	cmd, err := s.store.GetCommandBySlug(r.Context(), slug)
 	if err != nil {
@@ -123,16 +117,9 @@ func (s *Server) handleListExecutions(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	userID, err := uuid.Parse(claims.UserID)
-	if err != nil {
-		writeError(w, http.StatusInternalServerError, "invalid user id")
-		return
-	}
-
 	executions, err := s.store.ListExecutionsForCommand(r.Context(), store.ListExecutionsForCommandParams{
-		CommandID:   cmd.ID,
-		TriggeredBy: userID,
-		Limit:       50,
+		CommandID: cmd.ID,
+		Limit:     50,
 	})
 	if err != nil {
 		writeError(w, http.StatusInternalServerError, "internal error")
@@ -141,7 +128,7 @@ func (s *Server) handleListExecutions(w http.ResponseWriter, r *http.Request) {
 
 	result := make([]ExecutionResponse, 0, len(executions))
 	for _, e := range executions {
-		result = append(result, newExecutionResponse(e))
+		result = append(result, newExecutionListResponse(e))
 	}
 	writeJSON(w, http.StatusOK, result)
 }
@@ -164,7 +151,21 @@ func validateInputs(schema []store.CommandInput, provided map[string]any) string
 			if err := json.Unmarshal(input.Options, &options); err != nil {
 				continue
 			}
-			if !input.Multi {
+			if input.Multi {
+				arr, ok := val.([]any)
+				if !ok {
+					return fmt.Sprintf("input %s must be an array", input.Name)
+				}
+				for _, item := range arr {
+					strVal, ok := item.(string)
+					if !ok {
+						return fmt.Sprintf("input %s: all values must be strings", input.Name)
+					}
+					if !containsStr(options, strVal) {
+						return fmt.Sprintf("invalid value for %s: %q is not one of %v", input.Name, strVal, options)
+					}
+				}
+			} else {
 				strVal, ok := val.(string)
 				if !ok {
 					return fmt.Sprintf("input %s must be a string", input.Name)

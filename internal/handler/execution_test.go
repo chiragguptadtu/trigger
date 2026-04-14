@@ -187,6 +187,29 @@ func TestListExecutions(t *testing.T) {
 	assert.GreaterOrEqual(t, len(executions), 3)
 }
 
+func TestTriggerExecution_InvalidMultiOption(t *testing.T) {
+	ctx := context.Background()
+	cmd, user := setupCommandWithAccess(t, ctx, uniqueSlug("trigger-multi-invalid"))
+
+	_, err := testQueries.CreateCommandInput(ctx, store.CreateCommandInputParams{
+		CommandID: cmd.ID, Name: "envs", Label: "Envs",
+		Type:  "closed",
+		Multi: true,
+		Options: []byte(`["staging","prod"]`), Required: true,
+	})
+	require.NoError(t, err)
+
+	body := `{"inputs":{"envs":["staging","invalid-env"]}}`
+	req := httptest.NewRequest(http.MethodPost, "/commands/"+cmd.Slug+"/executions", strings.NewReader(body))
+	req.Header.Set("Content-Type", "application/json")
+	req.SetPathValue("slug", cmd.Slug)
+	req = req.WithContext(withClaims(req.Context(), &auth.Claims{UserID: user.ID.String()}))
+
+	rr := httptest.NewRecorder()
+	newTestServerWithEnqueuer(testQueries, &stubEnqueuer{}).ServeHTTP(rr, req)
+	assert.Equal(t, http.StatusBadRequest, rr.Code)
+}
+
 func uniqueSlug(prefix string) string {
 	return fmt.Sprintf("%s-%d", prefix, time.Now().UnixNano())
 }

@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <rect width="32" height="32" rx="8" fill="#69baf8"/>
+  <!-- Barrel -->
+  <rect x="16" y="10" width="11" height="4" rx="1" fill="white"/>
+  <!-- Body / slide -->
+  <rect x="5" y="7" width="13" height="10" rx="2" fill="white"/>
+  <!-- Handle / grip -->
+  <rect x="7" y="16" width="6" height="6" rx="1.5" fill="white"/>
+</svg>

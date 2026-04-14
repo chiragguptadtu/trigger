@@ -50,7 +50,7 @@ echo "deploying"
 	assert.Empty(t, result.Errors)
 }
 
-func TestScanDir_SkipsFilesWithoutTriggerBlock(t *testing.T) {
+func TestScanDir_FlagsFilesWithoutTriggerBlock(t *testing.T) {
 	dir := t.TempDir()
 	err := os.WriteFile(filepath.Join(dir, "helper.py"), []byte("# just a helper, no trigger block"), 0644)
 	require.NoError(t, err)
@@ -58,7 +58,8 @@ func TestScanDir_SkipsFilesWithoutTriggerBlock(t *testing.T) {
 	result, err := command.ScanDir(dir)
 	require.NoError(t, err)
 	assert.Empty(t, result.Commands)
-	assert.Empty(t, result.Errors)
+	require.Len(t, result.Errors, 1)
+	assert.Equal(t, "helper.py", result.Errors[0].Filename)
 }
 
 func TestScanDir_IgnoresNonScriptFiles(t *testing.T) {

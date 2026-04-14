@@ -15,6 +15,10 @@ req.txt
 coverage.html
 coverage.out
 
+# Frontend
+web/node_modules/
+web/dist/
+
 # Editor
 .DS_Store
 .idea/

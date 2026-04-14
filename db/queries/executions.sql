@@ -16,8 +16,9 @@ WHERE id = $1
 RETURNING *;
 
 -- name: ListExecutionsForCommand :many
-SELECT e.* FROM executions e
+SELECT e.*, u.name AS triggered_by_name, u.email AS triggered_by_email
+FROM executions e
+JOIN users u ON u.id = e.triggered_by
 WHERE e.command_id = $1
-  AND e.triggered_by = $2
 ORDER BY e.created_at DESC
-LIMIT $3;
+LIMIT $2;

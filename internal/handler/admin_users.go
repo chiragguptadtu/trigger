@@ -144,6 +144,15 @@ func (s *Server) handleDeactivateUser(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if _, err := s.store.GetUserByID(r.Context(), id); err != nil {
+		if errors.Is(store.Normalize(err), store.ErrNotFound) {
+			writeError(w, http.StatusNotFound, "user not found")
+			return
+		}
+		writeError(w, http.StatusInternalServerError, "internal error")
+		return
+	}
+
 	if err := s.store.DeactivateUser(r.Context(), id); err != nil {
 		writeError(w, http.StatusInternalServerError, "internal error")
 		return

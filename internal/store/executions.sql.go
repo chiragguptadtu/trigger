@@ -63,28 +63,42 @@ func (q *Queries) GetExecutionByID(ctx context.Context, id uuid.UUID) (Execution
 }
 
 const listExecutionsForCommand = `-- name: ListExecutionsForCommand :many
-SELECT e.id, e.command_id, e.triggered_by, e.inputs, e.status, e.error_message, e.started_at, e.completed_at, e.created_at FROM executions e
+SELECT e.id, e.command_id, e.triggered_by, e.inputs, e.status, e.error_message, e.started_at, e.completed_at, e.created_at, u.name AS triggered_by_name, u.email AS triggered_by_email
+FROM executions e
+JOIN users u ON u.id = e.triggered_by
 WHERE e.command_id = $1
-  AND e.triggered_by = $2
 ORDER BY e.created_at DESC
-LIMIT $3
+LIMIT $2
 `
 
 type ListExecutionsForCommandParams struct {
-	CommandID   uuid.UUID `json:"command_id"`
-	TriggeredBy uuid.UUID `json:"triggered_by"`
-	Limit       int32     `json:"limit"`
+	CommandID uuid.UUID `json:"command_id"`
+	Limit     int32     `json:"limit"`
 }
 
-func (q *Queries) ListExecutionsForCommand(ctx context.Context, arg ListExecutionsForCommandParams) ([]Execution, error) {
-	rows, err := q.db.Query(ctx, listExecutionsForCommand, arg.CommandID, arg.TriggeredBy, arg.Limit)
+type ListExecutionsForCommandRow struct {
+	ID               uuid.UUID          `json:"id"`
+	CommandID        uuid.UUID          `json:"command_id"`
+	TriggeredBy      uuid.UUID          `json:"triggered_by"`
+	Inputs           []byte             `json:"inputs"`
+	Status           string             `json:"status"`
+	ErrorMessage     string             `json:"error_message"`
+	StartedAt        pgtype.Timestamptz `json:"started_at"`
+	CompletedAt      pgtype.Timestamptz `json:"completed_at"`
+	CreatedAt        pgtype.Timestamptz `json:"created_at"`
+	TriggeredByName  string             `json:"triggered_by_name"`
+	TriggeredByEmail string             `json:"triggered_by_email"`
+}
+
+func (q *Queries) ListExecutionsForCommand(ctx context.Context, arg ListExecutionsForCommandParams) ([]ListExecutionsForCommandRow, error) {
+	rows, err := q.db.Query(ctx, listExecutionsForCommand, arg.CommandID, arg.Limit)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	items := []Execution{}
+	items := []ListExecutionsForCommandRow{}
 	for rows.Next() {
-		var i Execution
+		var i ListExecutionsForCommandRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.CommandID,
@@ -95,6 +109,8 @@ func (q *Queries) ListExecutionsForCommand(ctx context.Context, arg ListExecutio
 			&i.StartedAt,
 			&i.CompletedAt,
 			&i.CreatedAt,
+			&i.TriggeredByName,
+			&i.TriggeredByEmail,
 		); err != nil {
 			return nil, err
 		}

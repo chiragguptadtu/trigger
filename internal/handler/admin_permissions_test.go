@@ -87,6 +87,38 @@ func TestGrantCommandPermission(t *testing.T) {
 	assert.Equal(t, http.StatusCreated, rr.Code)
 }
 
+func TestGrantCommandPermission_Duplicate(t *testing.T) {
+	ctx := context.Background()
+	cmd, err := testQueries.UpsertCommand(ctx, store.UpsertCommandParams{
+		Slug: uniqueSlug("perm-dup"), Name: "Perm Dup", ScriptPath: "/c.py",
+	})
+	require.NoError(t, err)
+	testCleanup(t, "DELETE FROM commands WHERE id = $1", cmd.ID)
+
+	u, err := testQueries.CreateUser(ctx, createAdminParams())
+	require.NoError(t, err)
+	testCleanup(t, "DELETE FROM users WHERE id = $1", u.ID)
+
+	body := `{"grantee_type":"user","grantee_id":"` + u.ID.String() + `"}`
+	srv := newTestServer(testQueries)
+
+	// First grant — should succeed.
+	req1 := httptest.NewRequest(http.MethodPost, "/admin/commands/"+cmd.Slug+"/permissions",
+		strings.NewReader(body)).WithContext(adminCtx(t))
+	req1.Header.Set("Content-Type", "application/json")
+	req1.SetPathValue("slug", cmd.Slug)
+	srv.ServeHTTP(httptest.NewRecorder(), req1)
+
+	// Second grant — should return 409.
+	req2 := httptest.NewRequest(http.MethodPost, "/admin/commands/"+cmd.Slug+"/permissions",
+		strings.NewReader(body)).WithContext(adminCtx(t))
+	req2.Header.Set("Content-Type", "application/json")
+	req2.SetPathValue("slug", cmd.Slug)
+	rr := httptest.NewRecorder()
+	srv.ServeHTTP(rr, req2)
+	assert.Equal(t, http.StatusConflict, rr.Code)
+}
+
 func TestRevokeCommandPermission(t *testing.T) {
 	ctx := context.Background()
 	cmd, err := testQueries.UpsertCommand(ctx, store.UpsertCommandParams{
