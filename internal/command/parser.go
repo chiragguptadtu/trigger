@@ -29,6 +29,7 @@ type Input struct {
 	Options  []string
 	Multi    bool
 	Required bool
+	Dynamic  bool
 }
 
 type Command struct {
@@ -51,6 +52,7 @@ type inputMeta struct {
 	Options  []string `yaml:"options"`
 	Multi    bool     `yaml:"multi"`
 	Required bool     `yaml:"required"`
+	Dynamic  bool     `yaml:"dynamic"`
 }
 
 // ParseContent parses the trigger metadata block from a script file's content.
@@ -128,7 +130,7 @@ func convertInputs(metas []inputMeta) ([]Input, error) {
 		case InputTypeOpen:
 			// valid, no extra constraints
 		case InputTypeClosed:
-			if len(m.Options) == 0 {
+			if !m.Dynamic && len(m.Options) == 0 {
 				return nil, ErrClosedInputNoOptions
 			}
 		default:
@@ -142,6 +144,7 @@ func convertInputs(metas []inputMeta) ([]Input, error) {
 			Options:  m.Options,
 			Multi:    m.Multi,
 			Required: m.Required,
+			Dynamic:  m.Dynamic,
 		})
 	}
 	return inputs, nil

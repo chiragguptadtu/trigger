@@ -79,3 +79,87 @@ time.sleep(30)
 	_, err := execution.RunScript(ctx, path, nil, nil)
 	require.Error(t, err)
 }
+
+func TestGetOptions_PythonTwoInputs(t *testing.T) {
+	path := writeScript(t, "cmd.py", `#!/usr/bin/env python3
+import sys, json
+
+def get_options(input_name, config):
+    if input_name == "environment":
+        envs = config.get("AVAILABLE_ENVIRONMENTS", "staging,production")
+        return [e.strip() for e in envs.split(",") if e.strip()]
+    if input_name == "region":
+        return ["us-east-1", "eu-west-1"]
+    return []
+
+if __name__ == "__main__":
+    if sys.argv[1] == "--trigger-get-options":
+        input_name = sys.argv[2] if len(sys.argv) > 2 else ""
+        config = json.loads(sys.argv[3]) if len(sys.argv) > 3 else {}
+        print("\n".join(get_options(input_name, config)))
+        sys.exit(0)
+`)
+	cfg := map[string]string{"AVAILABLE_ENVIRONMENTS": "dev,staging,production"}
+
+	envOpts, err := execution.GetOptions(t.Context(), path, "environment", cfg)
+	require.NoError(t, err)
+	assert.Equal(t, []string{"dev", "staging", "production"}, envOpts)
+
+	regionOpts, err := execution.GetOptions(t.Context(), path, "region", cfg)
+	require.NoError(t, err)
+	assert.Equal(t, []string{"us-east-1", "eu-west-1"}, regionOpts)
+}
+
+func TestGetOptions_BashSuccess(t *testing.T) {
+	path := writeScript(t, "cmd.sh", `#!/usr/bin/env bash
+get_options() {
+    local input_name="$1"
+    if [[ "$input_name" == "environment" ]]; then
+        echo "staging"
+        echo "production"
+    elif [[ "$input_name" == "region" ]]; then
+        echo "us-east-1"
+        echo "eu-west-1"
+    fi
+}
+if [[ "${1:-}" == "--trigger-get-options" ]]; then
+    get_options "${2:-}" "${3:-}"
+    exit 0
+fi
+`)
+	opts, err := execution.GetOptions(t.Context(), path, "environment", nil)
+	require.NoError(t, err)
+	assert.Equal(t, []string{"staging", "production"}, opts)
+
+	opts, err = execution.GetOptions(t.Context(), path, "region", nil)
+	require.NoError(t, err)
+	assert.Equal(t, []string{"us-east-1", "eu-west-1"}, opts)
+}
+
+func TestGetOptions_ScriptError(t *testing.T) {
+	path := writeScript(t, "err.py", `#!/usr/bin/env python3
+import sys
+if sys.argv[1] == "--trigger-get-options":
+    print("database unavailable", file=sys.stderr)
+    sys.exit(1)
+`)
+	_, err := execution.GetOptions(t.Context(), path, "environment", nil)
+	require.Error(t, err)
+	assert.Contains(t, err.Error(), "database unavailable")
+}
+
+func TestGetOptions_EmptyOutput(t *testing.T) {
+	path := writeScript(t, "empty.py", `#!/usr/bin/env python3
+import sys
+if sys.argv[1] == "--trigger-get-options":
+    sys.exit(0)
+`)
+	opts, err := execution.GetOptions(t.Context(), path, "environment", nil)
+	require.NoError(t, err)
+	assert.Empty(t, opts)
+}
+
+func TestGetOptions_InvalidPath(t *testing.T) {
+	_, err := execution.GetOptions(t.Context(), "/nonexistent/script.py", "env", nil)
+	require.Error(t, err)
+}

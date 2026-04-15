@@ -5,6 +5,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2026-04-15
+
+### Added
+- Bash script support — `.sh` commands work end to end alongside Python (same input/config contract)
+- Dynamic closed inputs (`dynamic: true`) — options resolved at scan time by calling `get_options(input_name, config)` in the script, refreshed every 30 s without a server restart
+- Config store values decrypted and passed to `get_options` so scripts can drive options from live data
+- `GetOptions` runner function with full test coverage for Python and bash
+- Example commands: `ping_host.sh` (bash), `provision_environment.py` and `rotate_logs.sh` (dynamic inputs)
+
 ## [0.3.0] - 2026-04-15
 
 ### Changed
