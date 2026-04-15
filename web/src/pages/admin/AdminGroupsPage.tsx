@@ -6,6 +6,7 @@ import type { ColumnsType } from 'antd/es/table'
 import { fetchGroups, createGroup, deleteGroup, fetchGroupMembers, fetchUsers, addGroupMember, removeGroupMember } from '../../api/admin'
 import type { Group, User } from '../../api/admin'
 import { colTitle, tableProps } from '../../utils/table'
+import { PAGE_PADDING } from '../../utils/theme'
 
 const { Text } = Typography
 
@@ -148,7 +149,7 @@ export default function AdminGroupsPage() {
         open={!!membersGroup}
         onCancel={() => { setMembersGroup(null); setSelectedUserId(null) }}
         footer={null}
-        width={500}
+        width="min(500px, 90vw)"
       >
         <div style={{ marginBottom: 16, display: 'flex', gap: 8, marginTop: 16 }}>
           <Select
@@ -198,7 +199,7 @@ export default function AdminGroupsPage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  page: { padding: '28px 32px', background: '#fff', flex: 1, overflow: 'auto' },
+  page: { padding: PAGE_PADDING, background: '#fff', flex: 1, overflow: 'auto' },
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 },
   title: { fontSize: 16 },
 }

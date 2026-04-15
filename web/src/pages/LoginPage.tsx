@@ -110,7 +110,7 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'center',
   },
   card: {
-    width: 380,
+    width: 'min(380px, 90vw)',
     background: '#fff',
     borderRadius: 12,
     padding: '32px 36px 28px',
