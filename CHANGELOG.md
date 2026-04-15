@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-04-15
+
+### Changed
+- Upgraded React 18 → 19, antd 5 → 6, vite 5 → 8 (Rolldown bundler), @ant-design/icons 5 → 6, @vitejs/plugin-react 4 → 6
+- Node.js requirement bumped to 24 (vite 8 requires Node >= 20.19)
+- Bundle size reduced from 1,123 kB to 1,075 kB due to improved tree-shaking in Rolldown
+
 ## [0.2.0] - 2026-04-14
 
 ### Changed
