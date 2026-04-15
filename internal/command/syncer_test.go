@@ -2,7 +2,9 @@ package command_test
 
 import (
 	"context"
+	"encoding/json"
 	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -58,7 +60,7 @@ func TestSync_InsertsNewCommands(t *testing.T) {
 		},
 	}
 
-	err := command.Sync(ctx, testStore, scanned)
+	err := command.Sync(ctx, testStore, scanned, nil)
 	require.NoError(t, err)
 	t.Cleanup(func() { _ = cleanupCommand(ctx, "sync-test-cmd") })
 
@@ -80,7 +82,7 @@ func TestSync_UpdatesExistingCommand(t *testing.T) {
 		Slug: "sync-update-cmd", ScriptPath: "/commands/update.py",
 		Command: &command.Command{Name: "Old Name", Inputs: nil},
 	}}
-	require.NoError(t, command.Sync(ctx, testStore, initial))
+	require.NoError(t, command.Sync(ctx, testStore, initial, nil))
 	t.Cleanup(func() { _ = cleanupCommand(ctx, "sync-update-cmd") })
 
 	updated := []command.ScannedCommand{{
@@ -92,7 +94,7 @@ func TestSync_UpdatesExistingCommand(t *testing.T) {
 			},
 		},
 	}}
-	require.NoError(t, command.Sync(ctx, testStore, updated))
+	require.NoError(t, command.Sync(ctx, testStore, updated, nil))
 
 	cmd, err := testStore.GetCommandBySlug(ctx, "sync-update-cmd")
 	require.NoError(t, err)
@@ -116,10 +118,76 @@ func TestSync_DeactivatesRemovedCommands(t *testing.T) {
 	t.Cleanup(func() { _ = cleanupCommand(ctx, "sync-removed-cmd") })
 
 	// Sync with an empty list — removed-cmd should be deactivated
-	require.NoError(t, command.Sync(ctx, testStore, []command.ScannedCommand{}))
+	require.NoError(t, command.Sync(ctx, testStore, []command.ScannedCommand{}, nil))
 
 	_, err = testStore.GetCommandBySlug(ctx, "sync-removed-cmd")
 	assert.Error(t, err, "deactivated command should not be returned by GetCommandBySlug")
+}
+
+func TestSync_DynamicInputResolvesOptions(t *testing.T) {
+	skipIfNoDB(t)
+	ctx := context.Background()
+
+	// Write a real script with get_options for two inputs.
+	scriptPath := filepath.Join(t.TempDir(), "dynamic_cmd.py")
+	require.NoError(t, os.WriteFile(scriptPath, []byte(`#!/usr/bin/env python3
+import sys, json
+
+def get_options(input_name, config):
+    if input_name == "environment":
+        envs = config.get("AVAILABLE_ENVIRONMENTS", "staging,production")
+        return [e.strip() for e in envs.split(",") if e.strip()]
+    if input_name == "region":
+        return ["us-east-1", "eu-west-1"]
+    return []
+
+if __name__ == "__main__":
+    if sys.argv[1] == "--trigger-get-options":
+        input_name = sys.argv[2] if len(sys.argv) > 2 else ""
+        config = json.loads(sys.argv[3]) if len(sys.argv) > 3 else {}
+        print("\n".join(get_options(input_name, config)))
+        sys.exit(0)
+`), 0755))
+
+	scanned := []command.ScannedCommand{
+		{
+			Slug:       "sync-dynamic-cmd",
+			ScriptPath: scriptPath,
+			Command: &command.Command{
+				Name: "Dynamic Cmd",
+				Inputs: []command.Input{
+					{Name: "environment", Label: "Environment", Type: command.InputTypeClosed, Dynamic: true, Required: true},
+					{Name: "region", Label: "Region", Type: command.InputTypeClosed, Dynamic: true, Required: true},
+				},
+			},
+		},
+	}
+
+	// nil key is fine — no config entries in the test DB to decrypt.
+	err := command.Sync(ctx, testStore, scanned, nil)
+	require.NoError(t, err)
+	t.Cleanup(func() { _ = cleanupCommand(ctx, "sync-dynamic-cmd") })
+
+	cmd, err := testStore.GetCommandBySlug(ctx, "sync-dynamic-cmd")
+	require.NoError(t, err)
+
+	inputs, err := testStore.ListCommandInputs(ctx, cmd.ID)
+	require.NoError(t, err)
+	require.Len(t, inputs, 2)
+
+	envInput := inputs[0]
+	assert.Equal(t, "environment", envInput.Name)
+
+	var envOpts []string
+	require.NoError(t, json.Unmarshal(envInput.Options, &envOpts))
+	assert.Equal(t, []string{"staging", "production"}, envOpts)
+
+	regionInput := inputs[1]
+	assert.Equal(t, "region", regionInput.Name)
+
+	var regionOpts []string
+	require.NoError(t, json.Unmarshal(regionInput.Options, &regionOpts))
+	assert.Equal(t, []string{"us-east-1", "eu-west-1"}, regionOpts)
 }
 
 func cleanupCommand(ctx context.Context, slug string) error {

@@ -123,3 +123,39 @@ func TestParseContent_NoInputs(t *testing.T) {
 	assert.Equal(t, "Simple Command", cmd.Name)
 	assert.Empty(t, cmd.Inputs)
 }
+
+func TestParseContent_DynamicInput(t *testing.T) {
+	script := `# ---trigger---
+# name: Dynamic Command
+# description: Has a dynamic closed input
+# inputs:
+#   - name: environment
+#     label: Environment
+#     type: closed
+#     dynamic: true
+#     required: true
+# ---end---
+`
+	cmd, err := command.ParseContent(script)
+	require.NoError(t, err)
+	require.Len(t, cmd.Inputs, 1)
+	input := cmd.Inputs[0]
+	assert.Equal(t, "environment", input.Name)
+	assert.Equal(t, command.InputTypeClosed, input.Type)
+	assert.True(t, input.Dynamic)
+	assert.Nil(t, input.Options)
+}
+
+func TestParseContent_ClosedInputNeitherOptionsNorDynamic(t *testing.T) {
+	script := `# ---trigger---
+# name: Bad Command
+# inputs:
+#   - name: env
+#     label: Env
+#     type: closed
+#     required: true
+# ---end---
+`
+	_, err := command.ParseContent(script)
+	require.ErrorIs(t, err, command.ErrClosedInputNoOptions)
+}

@@ -3,17 +3,38 @@ package command
 import (
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/chiragguptadtu/trigger/internal/crypto"
+	"github.com/chiragguptadtu/trigger/internal/execution"
 	"github.com/chiragguptadtu/trigger/internal/store"
 )
 
 // Sync upserts all scanned commands into the DB and deactivates any active
-// commands that are no longer present in the scan results.
-func Sync(ctx context.Context, q *store.Queries, scanned []ScannedCommand) error {
+// commands that are no longer present in the scan results. encKey is the
+// AES-256 key used to decrypt config entries passed to dynamic inputs; it may
+// be nil if no commands in this scan have dynamic inputs.
+func Sync(ctx context.Context, q *store.Queries, scanned []ScannedCommand, encKey []byte) error {
 	activeSlug := make(map[string]bool, len(scanned))
+
+	// Load decrypted config once per sync cycle — only if any dynamic input exists.
+	var configCache map[string]string
+	configLoaded := false
+	loadConfig := func() (map[string]string, error) {
+		if configLoaded {
+			return configCache, nil
+		}
+		m, err := loadDecryptedConfig(ctx, q, encKey)
+		if err != nil {
+			return nil, err
+		}
+		configCache = m
+		configLoaded = true
+		return configCache, nil
+	}
 
 	for _, sc := range scanned {
 		cmd, err := q.UpsertCommand(ctx, store.UpsertCommandParams{
@@ -31,9 +52,24 @@ func Sync(ctx context.Context, q *store.Queries, scanned []ScannedCommand) error
 			return err
 		}
 		for i, input := range sc.Command.Inputs {
+			resolvedOptions := input.Options
+			if input.Dynamic {
+				cfg, err := loadConfig()
+				if err != nil {
+					log.Printf("get_options: load config for %s/%s: %v", sc.Slug, input.Name, err)
+				} else {
+					opts, err := execution.GetOptions(ctx, sc.ScriptPath, input.Name, cfg)
+					if err != nil {
+						log.Printf("get_options: %s/%s: %v", sc.Slug, input.Name, err)
+					} else {
+						resolvedOptions = opts
+					}
+				}
+			}
+
 			var options []byte
-			if len(input.Options) > 0 {
-				options, err = json.Marshal(input.Options)
+			if len(resolvedOptions) > 0 {
+				options, err = json.Marshal(resolvedOptions)
 				if err != nil {
 					return err
 				}
@@ -77,13 +113,13 @@ func Sync(ctx context.Context, q *store.Queries, scanned []ScannedCommand) error
 // run every interval. Per-file parse errors are persisted to command_import_errors
 // so the frontend can surface them. Resolved errors (file now parses cleanly) are
 // deleted. The loop exits when ctx is cancelled.
-func ScanLoop(ctx context.Context, dir string, q *store.Queries, interval time.Duration) {
+func ScanLoop(ctx context.Context, dir string, q *store.Queries, encKey []byte, interval time.Duration) {
 	for {
 		result, err := ScanDir(dir)
 		if err != nil {
 			log.Printf("command scan error: %v", err)
 		} else {
-			if err := Sync(ctx, q, result.Commands); err != nil {
+			if err := Sync(ctx, q, result.Commands, encKey); err != nil {
 				log.Printf("command sync error: %v", err)
 			} else {
 				log.Printf("commands: synced %d, import errors: %d", len(result.Commands), len(result.Errors))
@@ -111,6 +147,36 @@ func ScanLoop(ctx context.Context, dir string, q *store.Queries, interval time.D
 			return
 		}
 	}
+}
+
+// loadDecryptedConfig fetches all config entries from the DB and decrypts their
+// values. Entries deleted between list and fetch are silently skipped.
+func loadDecryptedConfig(ctx context.Context, q *store.Queries, encKey []byte) (map[string]string, error) {
+	entries, err := q.ListConfigEntries(ctx)
+	if err != nil {
+		return nil, err
+	}
+	result := make(map[string]string, len(entries))
+	for _, e := range entries {
+		full, err := q.GetConfigEntryByKey(ctx, e.Key)
+		if err != nil {
+			if errors.Is(store.Normalize(err), store.ErrNotFound) {
+				continue
+			}
+			return nil, err
+		}
+		if len(encKey) == 0 {
+			// No key provided (e.g. tests with no config entries) — skip decryption.
+			continue
+		}
+		plaintext, err := crypto.Decrypt(encKey, full.ValueEncrypted)
+		if err != nil {
+			log.Printf("decrypt config %q: %v", e.Key, err)
+			continue
+		}
+		result[e.Key] = plaintext
+	}
+	return result, nil
 }
 
 // pgBytes wraps a byte slice as a pgtype-compatible value for JSONB columns.

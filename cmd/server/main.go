@@ -57,7 +57,7 @@ func main() {
 	}
 
 	// Auto-discover commands: scan immediately then every 30s.
-	go command.ScanLoop(ctx, commandsDir, q, 30*time.Second)
+	go command.ScanLoop(ctx, commandsDir, q, encKey, 30*time.Second)
 
 	// River job queue
 	worker := execution.NewWorker(q, encKey)

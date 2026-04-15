@@ -54,6 +54,49 @@ func RunScript(ctx context.Context, scriptPath string, inputs map[string]any, co
 	return "", nil
 }
 
+// GetOptions calls the script with --trigger-get-options <inputName> <configJSON>
+// and returns the options printed to stdout, one per line.
+func GetOptions(ctx context.Context, scriptPath, inputName string, config map[string]string) ([]string, error) {
+	configJSON, err := json.Marshal(orEmptyStr(config))
+	if err != nil {
+		return nil, fmt.Errorf("marshal config: %w", err)
+	}
+
+	if _, err := os.Stat(scriptPath); err != nil {
+		return nil, fmt.Errorf("script not found: %w", err)
+	}
+
+	var cmd *exec.Cmd
+	switch strings.ToLower(filepath.Ext(scriptPath)) {
+	case ".py":
+		cmd = exec.CommandContext(ctx, "python3", scriptPath, "--trigger-get-options", inputName, string(configJSON))
+	case ".sh":
+		cmd = exec.CommandContext(ctx, "bash", scriptPath, "--trigger-get-options", inputName, string(configJSON))
+	default:
+		return nil, fmt.Errorf("unsupported script type: %s", filepath.Ext(scriptPath))
+	}
+
+	var stdout, stderr bytes.Buffer
+	cmd.Stdout = &stdout
+	cmd.Stderr = &stderr
+
+	if err := cmd.Run(); err != nil {
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+		return nil, fmt.Errorf("get_options failed: %s", strings.TrimSpace(stderr.String()))
+	}
+
+	var opts []string
+	for _, line := range strings.Split(stdout.String(), "\n") {
+		line = strings.TrimSpace(line)
+		if line != "" {
+			opts = append(opts, line)
+		}
+	}
+	return opts, nil
+}
+
 func orEmpty(m map[string]any) map[string]any {
 	if m == nil {
 		return map[string]any{}
