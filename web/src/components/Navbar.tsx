@@ -29,7 +29,7 @@ function ImportErrorIndicator() {
     errors.length === 1 ? errors[0].filename : `${errors.length} import errors`
 
   const content = (
-    <div style={{ width: 500 }}>
+    <div style={{ width: '35vw' }}>
       {errors.map((e: ImportError, i: number) => (
         <div
           key={i}
@@ -63,7 +63,7 @@ function ImportErrorIndicator() {
         </Text>
       }
       content={content}
-      styles={{ body: { maxWidth: 540 } }}
+      styles={{ body: { maxWidth: '38vw' } }}
     >
       <span style={styles.errorLink}>{label}</span>
     </Popover>
@@ -163,7 +163,7 @@ const styles: Record<string, React.CSSProperties> = {
     fontSize: 12,
     color: '#ff4d4f',
     cursor: 'pointer',
-    maxWidth: 320,
+    maxWidth: '22vw',
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',

@@ -8,6 +8,12 @@ An open-source internal ops platform that wraps Python and Bash scripts into a s
 
 Most teams accumulate scripts — deployment helpers, data fixes, report generators — that only engineers can run because they live on the command line. Trigger solves this by giving each script a form-based UI, access controls, and an execution history, all without touching the script itself.
 
+## Screenshots
+
+| Command form | Execution history | Complex command |
+|:---:|:---:|:---:|
+| ![Command form](docs/screenshot-command.png) | ![Execution failures](docs/screenshot-failures.png) | ![Complex command](docs/screenshot-complex-command.png) |
+
 ## Features
 
 - **Zero-touch command registration** — drop a script with a YAML comment header into the `commands/` directory; Trigger picks it up automatically within 30 seconds

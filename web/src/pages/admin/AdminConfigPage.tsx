@@ -7,6 +7,7 @@ import { fetchConfig, createConfig, updateConfig, deleteConfig } from '../../api
 import type { ConfigEntry } from '../../api/admin'
 import { colTitle, tableProps } from '../../utils/table'
 import { getApiError } from '../../utils/error'
+import { PAGE_PADDING } from '../../utils/theme'
 
 const { Text } = Typography
 
@@ -165,7 +166,7 @@ export default function AdminConfigPage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  page: { padding: '28px 32px', background: '#fff', flex: 1, overflow: 'auto' },
+  page: { padding: PAGE_PADDING, background: '#fff', flex: 1, overflow: 'auto' },
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 },
   title: { fontSize: 16 },
 }

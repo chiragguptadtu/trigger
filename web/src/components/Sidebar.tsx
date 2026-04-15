@@ -118,7 +118,9 @@ export default function Sidebar() {
 
 const styles: Record<string, React.CSSProperties> = {
   sidebar: {
-    width: 260,
+    width: '18vw',
+    minWidth: 200,
+    maxWidth: 300,
     flexShrink: 0,
     background: '#fff',
     borderRight: '1px solid #f0f0f0',
@@ -180,6 +182,6 @@ const styles: Record<string, React.CSSProperties> = {
     overflow: 'hidden',
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap',
-    maxWidth: 220,
+    maxWidth: '80%',
   },
 }

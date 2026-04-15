@@ -9,6 +9,7 @@ import { fetchCommands } from '../../api/commands'
 import type { Command } from '../../api/commands'
 import { colTitle, tableProps } from '../../utils/table'
 import { getApiError } from '../../utils/error'
+import { PAGE_PADDING } from '../../utils/theme'
 
 const { Text } = Typography
 
@@ -111,7 +112,7 @@ export default function AdminPermissionsPage() {
       <Form layout="vertical" requiredMark={false} style={{ marginBottom: 20 }}>
         <Form.Item label={<span>Command <span style={{ color: 'rgba(0,0,0,0.35)', fontWeight: 400 }}>(select a command to view and manage its access grants)</span></span>} style={{ marginBottom: 0 }}>
           <Select
-            style={{ width: 320 }}
+            style={{ width: '22vw' }}
             placeholder="Select a command…"
             value={selectedSlug}
             onChange={setSelectedSlug}
@@ -167,7 +168,7 @@ export default function AdminPermissionsPage() {
 }
 
 const styles: Record<string, React.CSSProperties> = {
-  page: { padding: '28px 32px', background: '#fff', flex: 1, overflow: 'auto' },
+  page: { padding: PAGE_PADDING, background: '#fff', flex: 1, overflow: 'auto' },
   header: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 },
   title: { fontSize: 16 },
 }
