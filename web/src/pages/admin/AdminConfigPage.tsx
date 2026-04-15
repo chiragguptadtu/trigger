@@ -86,7 +86,7 @@ export default function AdminConfigPage() {
       width: 90,
       render: (_: unknown, entry: ConfigEntry) => (
         <div style={{ display: 'flex', gap: 12 }}>
-          <Tooltip title="Edit" color="#fff" styles={{ body: { color: 'rgba(0,0,0,0.65)', fontSize: 12 } }}>
+          <Tooltip title="Edit" color="#fff" styles={{ container: { color: 'rgba(0,0,0,0.65)', fontSize: 12 } }}>
             <Button
               type="text"
               size="small"
@@ -98,7 +98,7 @@ export default function AdminConfigPage() {
             />
           </Tooltip>
           <Popconfirm title="Delete this entry?" onConfirm={() => handleDelete(entry.key)} okText="Yes" cancelText="No">
-            <Tooltip title="Delete" color="#fff" styles={{ body: { color: 'rgba(0,0,0,0.65)', fontSize: 12 } }}>
+            <Tooltip title="Delete" color="#fff" styles={{ container: { color: 'rgba(0,0,0,0.65)', fontSize: 12 } }}>
               <Button type="text" size="small" danger icon={<DeleteOutlined />} />
             </Tooltip>
           </Popconfirm>

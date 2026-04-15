@@ -94,7 +94,7 @@ export default function AdminUsersPage() {
       width: 90,
       render: (_: unknown, user: User) => (
         <div style={{ display: 'flex', gap: 12 }}>
-          <Tooltip title="Edit" color="#fff" styles={{ body: { color: 'rgba(0,0,0,0.65)', fontSize: 12 } }}>
+          <Tooltip title="Edit" color="#fff" styles={{ container: { color: 'rgba(0,0,0,0.65)', fontSize: 12 } }}>
             <Button
               type="text"
               size="small"
@@ -107,7 +107,7 @@ export default function AdminUsersPage() {
           </Tooltip>
           {user.is_active && (
             <Popconfirm title="Deactivate this user?" onConfirm={() => handleDeactivate(user.id)} okText="Yes" cancelText="No">
-              <Tooltip title="Deactivate" color="#fff" styles={{ body: { color: 'rgba(0,0,0,0.65)', fontSize: 12 } }}>
+              <Tooltip title="Deactivate" color="#fff" styles={{ container: { color: 'rgba(0,0,0,0.65)', fontSize: 12 } }}>
                 <Button type="text" size="small" danger icon={<StopOutlined />} />
               </Tooltip>
             </Popconfirm>

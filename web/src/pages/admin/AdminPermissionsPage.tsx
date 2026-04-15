@@ -91,7 +91,7 @@ export default function AdminPermissionsPage() {
       width: 60,
       render: (_: unknown, p: ResolvedPermission) => (
         <Popconfirm title="Revoke access?" onConfirm={() => handleRevoke(p)} okText="Yes" cancelText="No">
-          <Tooltip title="Revoke" color="#fff" styles={{ body: { color: 'rgba(0,0,0,0.65)', fontSize: 12 } }}>
+          <Tooltip title="Revoke" color="#fff" styles={{ container: { color: 'rgba(0,0,0,0.65)', fontSize: 12 } }}>
             <Button type="text" size="small" danger icon={<StopOutlined />} />
           </Tooltip>
         </Popconfirm>

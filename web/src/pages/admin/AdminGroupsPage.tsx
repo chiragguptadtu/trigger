@@ -100,11 +100,11 @@ export default function AdminGroupsPage() {
       width: 90,
       render: (_: unknown, group: Group) => (
         <div style={{ display: 'flex', gap: 12 }}>
-          <Tooltip title="Members" color="#fff" styles={{ body: { color: 'rgba(0,0,0,0.65)', fontSize: 12 } }}>
+          <Tooltip title="Members" color="#fff" styles={{ container: { color: 'rgba(0,0,0,0.65)', fontSize: 12 } }}>
             <Button type="text" size="small" icon={<TeamOutlined />} onClick={() => setMembersGroup(group)} />
           </Tooltip>
           <Popconfirm title="Delete this group?" onConfirm={() => handleDelete(group.id)} okText="Yes" cancelText="No">
-            <Tooltip title="Delete" color="#fff" styles={{ body: { color: 'rgba(0,0,0,0.65)', fontSize: 12 } }}>
+            <Tooltip title="Delete" color="#fff" styles={{ container: { color: 'rgba(0,0,0,0.65)', fontSize: 12 } }}>
               <Button type="text" size="small" danger icon={<DeleteOutlined />} />
             </Tooltip>
           </Popconfirm>
@@ -185,7 +185,7 @@ export default function AdminGroupsPage() {
               width: 48,
               render: (_: unknown, u: User) => (
                 <Popconfirm title="Remove from group?" onConfirm={() => handleRemoveMember(u.id)} okText="Yes" cancelText="No">
-                  <Tooltip title="Remove" color="#fff" styles={{ body: { color: 'rgba(0,0,0,0.65)', fontSize: 12 } }}>
+                  <Tooltip title="Remove" color="#fff" styles={{ container: { color: 'rgba(0,0,0,0.65)', fontSize: 12 } }}>
                     <Button type="text" size="small" danger icon={<DeleteOutlined />} />
                   </Tooltip>
                 </Popconfirm>
