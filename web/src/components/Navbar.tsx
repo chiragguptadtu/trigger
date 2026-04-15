@@ -63,7 +63,7 @@ function ImportErrorIndicator() {
         </Text>
       }
       content={content}
-      styles={{ body: { maxWidth: '38vw' } }}
+      styles={{ container: { maxWidth: '38vw' } }}
     >
       <span style={styles.errorLink}>{label}</span>
     </Popover>
