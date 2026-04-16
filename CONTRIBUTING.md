@@ -24,15 +24,18 @@ Start the frontend dev server:
 cd web && npm install && npm run dev
 ```
 
-## Running Tests
+## Running Tests and Checks
 
 ```bash
-# Backend
-docker compose up -d   # PostgreSQL must be running
-go test ./...
+# Backend — PostgreSQL must be running
+docker compose up -d
+go test -p 1 ./...
 
-# Frontend
-cd web && npm run test
+# Frontend — type-check
+cd web && npm run typecheck
+
+# Frontend — lint
+cd web && npm run lint
 ```
 
 Backend tests require a running PostgreSQL instance. Migrations are applied automatically by the test suite.
